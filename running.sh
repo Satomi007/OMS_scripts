@@ -5,20 +5,24 @@
  VAR_DIR=/var$COMMONSEGMENT
  VAR_DIR_WS=$VAR_DIR/$WORKSPACE_ID
  RUN_DIR=$VAR_DIR_WS/run
- PIDFILE = $RUN_DIR/omsagent.pid
+ PIDFILE=$RUN_DIR/omsagent.pid
  ERROR_UNEXPECTED_STATE=69
  FILE_NOT_FOUND=21
+ echo "$PIDFILE"
 
-    if [ -f $PIDFILE ]; then
-        local omsagent_pid=`cat $PIDFILE 2>/dev/null`
-        local ps_state=`ps --no-header -o state -p $omsagent_pid`
-        if [ -z "$ps_state" ]; then
+    if [ $PIDFILE ]; then
+        omsagent_pid=`sudo cat $PIDFILE 2>/dev/null`
+        ps_state=`sudo ps --no-header -o state -p $omsagent_pid`
+	echo "$omsagent_pid"
+	echo "$ps_state"
+        if [ -z $ps_state ]; then
             WS_STATUS=1 # Not There; FALSE
+	    echo "PROCESS NOT EXIST"
         else
             case "$ps_state" in
             D)  echo "Uninterruptable Sleep State Seen in omsagent process.";;
-            R)  ;;
-            S)  ;;
+            R)  echo "Running";;
+            S)  echo "Sleeping";;
             T)  echo "Stopped State Seen in omsagent process."
                 WS_STATUS=$ERROR_UNEXPECTED_STATE;;
             W)  echo "Paging State Seen in omsagent process."
@@ -33,5 +37,5 @@
         fi
     else
         WS_STATUS=$FILE_NOT_FOUND
+	echo "PIDFILE NOT EXIST"
     fi
-    return $WS_STATUS
