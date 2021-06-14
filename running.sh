@@ -12,12 +12,13 @@
 
     if [ $PIDFILE ]; then
         omsagent_pid=`sudo cat $PIDFILE 2>/dev/null`
-        ps_state=`sudo ps --no-header -o state -p $omsagent_pid`
+        ps_state=`sudo ps --no-header -o state -p $omsagent_pid 2>/dev/null`
 	echo "$omsagent_pid"
 	echo "$ps_state"
         if [ -z $ps_state ]; then
             WS_STATUS=1 # Not There; FALSE
 	    echo "PROCESS NOT EXIST"
+	    echo "HINT: CHECH $WORKSPACE_ID DIR EXIST IN THE PATH $VAR_DIR"
         else
             case "$ps_state" in
             D)  echo "Uninterruptable Sleep State Seen in omsagent process.";;
@@ -35,7 +36,4 @@
                 notification_exit ERROR_UNEXPECTED_SYSTEM_INFO;;
             esac
         fi
-    else
-        WS_STATUS=$FILE_NOT_FOUND
-	echo "PIDFILE NOT EXIST"
     fi
